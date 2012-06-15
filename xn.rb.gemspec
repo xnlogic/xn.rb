@@ -12,7 +12,8 @@ Gem::Specification.new do |s|
   s.summary     = %q{XN Logic API client - first used by LightMesh utilities}
   s.description = %q{Aims to provide a semantic wrapper for the XN Logic graph-db application framework's REST API.}
   
-  s.add_development_dependency "rspec"
+  s.add_dependency 'highline'
+  s.add_development_dependency 'rspec'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'autotest'
   s.add_development_dependency 'autotest-growl'
