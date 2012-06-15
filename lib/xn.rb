@@ -172,6 +172,17 @@ module Xn
       end
     end
 
+    # execute the named action with any properties as args
+    def exec_action(vertex, action_name, props = {})
+      debug "exec_action(#{vertex}, #{action_name}, #{props})"
+      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/#{vertex['id']}/action/#{action_name}"
+      debug "POST #{request_path} (#{props.to_json})"
+      api.post request_path, props do |response|
+        debug "executed #{action_name} on vertex [#{response}]"
+        response
+      end
+    end
+
     protected
 
     def debug(message = "")
