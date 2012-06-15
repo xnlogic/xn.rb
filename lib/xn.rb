@@ -119,6 +119,23 @@ module Xn
       end
     end
 
+    # update the given vertex with the given hash
+    # return a hash of the updates or nil
+    def update_vertex(vertex, update_hash)
+      debug "update_vertex(#{vertex}, #{update_hash})"
+      return nil if vertex.nil? or update_hash.nil?
+      if !vertex.is_a? Hash
+        vertex = find_vertex_by_part :record, vertex
+      end
+
+      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/#{vertex['id']}"
+      debug "PATCH #{request_path} (#{update_hash.to_json})"
+      api.patch request_path, update_hash do |response|
+        debug "updated vertex [#{response}]"
+        response
+      end
+    end
+
     # find or create a vertex by model and name and optionally provide
     # a filter string to append to the model/xxx/ URL and properties to set
     # if not found.
