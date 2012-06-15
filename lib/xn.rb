@@ -159,16 +159,14 @@ module Xn
       if vertex and vertex.is_a? Hash and vertex['meta']['model_name']
         model = vertex['meta']['model_name']
         request_path = "/#{api_suffix}/model/#{model}/#{vertex['id']}/rel"
-        req = Net::HTTP::Get.new(request_path)
-        req['Authorization'] = token
-        result = Net::HTTP.start(host, port) { |http| http.request(req) }
-        parts = JSON.parse result.body
-
-        related = parts.map do |part|
-          find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
+        api.get request_path do |parts|
+          debug "  parts: #{parts}"
+          related = parts.map do |part|
+            find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
+          end
+          debug "found related: [#{related}]"
+          return related if related.any?
         end
-        debug "found related: #{related}"
-        related if related.any?
       end
     end
 
