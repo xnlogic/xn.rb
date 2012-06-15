@@ -25,7 +25,26 @@ module Xn
       call_http_server http_post, &block
     end
 
+    # Calls a method resource to create a vertex and returns a renderable JSON response
+    def put(resource_url, body = nil, &block)
+      http_put = Net::HTTP::Put.new resource_url, {'Content-Type' =>'application/json'}
+      http_put.body = json_body(body) if body
+      call_http_server http_put, &block
+    end
+
+    # Calls a method resource to update a vertex and returns a renderable JSON response
+    def patch(resource_url, body = nil, &block)
+      http_patch = Net::HTTP::Put.new resource_url, {'Content-Type' =>'application/json'}
+      http_patch.body = json_body(body) if body
+      call_http_server http_patch, &block
+    end
+
     private
+
+    # Ensure the body is json
+    def json_body(body)
+      body.to_json if body.is_a? Enumerable
+    end
 
     def call_http_server(request, &block)
       request['AUTHORIZATION'] = token if token
@@ -43,6 +62,13 @@ module Xn
           { status: response.code.to_i, json: json }
         end
       end
+      rescue Exception => e
+        puts
+        puts "ERROR making request from: "
+        puts request
+        puts e.message
+        raise e if e.is_a? Errno::ECONNREFUSED or e.is_a? Net::HTTPBadRequest
+        puts e.backtrace
     end
   end
 end

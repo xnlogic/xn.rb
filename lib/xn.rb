@@ -68,6 +68,108 @@ module Xn
       @token ||= login
     end
 
+    # Fetch a single vertex of given model type from the server
+    # return a hash of the vertex or nil
+    def find_vertex_by_model(model, filter_string)
+      debug "find_vertex_by_model(#{model}, #{filter_string})"
+      raise "model is a required argument" if model.nil?
+      if filter_string and filter_string[/\?/]
+        filer_string += "&limit=1"
+      else
+        filter_string = "#{filter_string}?limit=1"
+      end
+      request_path = "/#{api_suffix}/model/#{model.downcase}/#{filter_string}"
+      api.get request_path do |response|
+        vertex = response.first
+        debug "found vertex #{vertex}"
+        vertex
+      end
+    end
+
+    # Fetch a single vertex of given part type from the server
+    # return a hash of the vertex or nil
+    def find_vertex_by_part(part, filter_string)
+      debug "find_vertex_by_part(#{part}, #{filter_string})"
+      raise "part is a required argument" if part.nil?
+      if filter_string and filter_string[/\?/]
+        filer_string += "&limit=1"
+      else
+        filter_string = "#{filter_string}?limit=1"
+      end
+      request_path = "/#{api_suffix}/is/#{part.downcase}/#{filter_string}"
+      api.get request_path do |response|
+        vertex = response.first
+        debug "found vertex #{vertex}"
+        vertex
+      end
+    end
+
+    # Create a vertex of given model with given properties
+    # return a hash of the vertex or nil
+    def create_vertex(model, props)
+      debug "create_vertex(#{model}, #{props})"
+      raise "model and :name property are required" if model.nil? or props.nil? or props[:name].nil?
+
+      request_path = "/#{api_suffix}/model/#{model.downcase}"
+      api.put request_path, props do |response|
+        #TODO: DKC 12/6/2012 check that we were authorized to do that! Fail if not?
+        if response and response[0] != false
+          vertex = response[2]
+        end
+      end
+    end
+
+    # find or create a vertex by model and name and optionally provide
+    # a filter string to append to the model/xxx/ URL and properties to set
+    # if not found.
+    #
+    # (example filter_string: 'filter/name/?name[value]=myname')
+    def find_or_create_by_model_and_name(model, name, filter_string = nil, props = {})
+      debug "find_or_create_by_model_and_name(#{model}, #{name}, #{filter_string}, #{props})"
+      filter_string = "filter/name/?name[value]=#{name}" unless filter_string
+      props = props.merge name: name
+      obj = find_vertex_by_model(model, filter_string)
+      if obj.nil? or obj.empty?
+        debug "about to create a #{model} vertex with #{props} properties" if obj.nil? or obj.empty?
+        obj = create_vertex(model, props)
+      end
+      obj
+    end
+
+    # return all vertices related to the given one
+    def related_vertices(vertex)
+      debug "related_vertices(#{vertex})"
+      if vertex and vertex.is_a? Hash and vertex['meta']['model_name']
+        model = vertex['meta']['model_name']
+        request_path = "/#{api_suffix}/model/#{model}/#{vertex['id']}/rel"
+        req = Net::HTTP::Get.new(request_path)
+        req['Authorization'] = token
+        result = Net::HTTP.start(host, port) { |http| http.request(req) }
+        parts = JSON.parse result.body
+
+        related = parts.map do |part|
+          find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
+        end
+        debug "found related: #{related}"
+        related if related.any?
+      end
+    end
+
+    protected
+
+    def debug(message = "")
+      if ENV['XN_VERBOSITY'] and ENV['XN_VERBOSITY'] == 'debug'
+        message = yield if block_given?
+        STDERR.puts "DEBUG: #{message}"
+      end
+    end
+
+    def verbose(message)
+      if ENV['XN_VERBOSITY']
+        message = yield if block_given?
+        STDERR.puts "#{message}"
+      end
+    end
   end
 end
 
