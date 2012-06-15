@@ -1,6 +1,9 @@
 # Simple API request wrapper.  Instantiate multiple times to hit the
 # server in parallel.
+
 module Xn
+  class AuthorizationError < StandardError; end
+
   class ApiRequestor
     attr_accessor :uri, :token
 
@@ -52,6 +55,7 @@ module Xn
         response = http.request(request)
         begin
           json = JSON.parse(response.body)
+          raise AuthorizationError, "#{json['message']} (#{json['parsed_url']})" if response.code.to_i == 401
         rescue JSON::ParserError => e
           # Probably not JSON, return entire body
           return { status: response.code.to_i, body: response.body }
@@ -63,11 +67,11 @@ module Xn
         end
       end
       rescue Exception => e
-        puts
+        raise e if e.is_a? AuthorizationError
+        raise e if e.is_a? Errno::ECONNREFUSED or e.is_a? Net::HTTPBadRequest
         puts "ERROR making request from: "
         puts request
         puts e.message
-        raise e if e.is_a? Errno::ECONNREFUSED or e.is_a? Net::HTTPBadRequest
         puts e.backtrace
     end
   end
