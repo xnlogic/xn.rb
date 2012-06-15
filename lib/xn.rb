@@ -6,6 +6,9 @@ We recommend you use ruby-1.9.3 or if using JRuby, start ruby in 1.9 mode,
   JRUBY_OPTS=--1.9
 WARNING
 end
+require 'rubygems'
+require 'bundler'
+Bundler.require
 
 require 'json'
 require 'net/http'
@@ -71,7 +74,7 @@ module Xn
     # Fetch a single vertex of given model type from the server
     # return a hash of the vertex or nil
     def find_vertex_by_model(model, filter_string)
-      debug "find_vertex_by_model(#{model}, #{filter_string})"
+      debug "find_vertex_by_model(#{model.downcase}, #{filter_string})"
       raise "model is a required argument" if model.nil?
       if filter_string and filter_string[/\?/]
         filer_string = "#{filter_string}&limit=1"
@@ -81,7 +84,7 @@ module Xn
       request_path = "/#{api_suffix}/model/#{model.downcase}/#{filter_string}"
       api.get request_path do |response|
         vertex = response.first
-        debug "found vertex #{vertex}"
+        debug "found vertex [#{vertex}]"
         vertex
       end
     end
@@ -99,7 +102,7 @@ module Xn
       request_path = "/#{api_suffix}/is/#{part.downcase}/#{filter_string}"
       api.get request_path do |response|
         vertex = response.first
-        debug "found vertex #{vertex}"
+        debug "found vertex [#{vertex}]"
         vertex
       end
     end
@@ -112,9 +115,8 @@ module Xn
 
       request_path = "/#{api_suffix}/model/#{model.downcase}"
       api.put request_path, props do |response|
-        #TODO: DKC 12/6/2012 check that we were authorized to do that! Fail if not?
         if response and response[0] != false
-          vertex = response[2]
+          return vertex = response[2]
         end
       end
     end

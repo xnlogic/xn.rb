@@ -46,7 +46,11 @@ module Xn
 
     # Ensure the body is json
     def json_body(body)
-      body.to_json if body.is_a? Enumerable
+      if body.is_a? Enumerable
+        body.to_json
+      else
+        body
+      end
     end
 
     def call_http_server(request, &block)
