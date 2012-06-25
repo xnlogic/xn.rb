@@ -165,7 +165,7 @@ module Xn
           debug "  parts: #{parts}"
           related = parts.map do |part|
             find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
-          end
+          end.compact
           debug "found related: [#{related}]"
           return related if related.any?
         end
