@@ -56,7 +56,20 @@ module Xn
     def call_http_server(request, &block)
       request['AUTHORIZATION'] = token if token
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https' ) do |http|
-        response = http.request(request)
+        response = nil
+        t = Thread.new { response = http.request(request) }
+        i = 0
+        while response.nil?
+          i += 1
+          print '.'
+          if i % 20 == 0
+            print "\r"
+          end
+          sleep 0.01
+        end
+        print "\r"
+        t.join
+
         begin
           json = JSON.parse(response.body)
           raise AuthorizationError, "#{json['message']} (#{json['parsed_url']})" if response.code.to_i == 401
