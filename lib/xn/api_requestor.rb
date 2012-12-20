@@ -37,7 +37,7 @@ module Xn
 
     # Calls a method resource to update a vertex and returns a renderable JSON response
     def patch(resource_url, body = nil, &block)
-      http_patch = Net::HTTP::Put.new resource_url, {'Content-Type' =>'application/json'}
+      http_patch = Net::HTTP::Patch.new resource_url, {'Content-Type' =>'application/json'}
       http_patch.body = json_body(body) if body
       call_http_server http_patch, &block
     end
