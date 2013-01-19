@@ -8,7 +8,7 @@ WARNING
 end
 require 'rubygems'
 require 'bundler'
-Bundler.require
+require 'bundler/setup'
 
 require 'json'
 require 'net/http'
