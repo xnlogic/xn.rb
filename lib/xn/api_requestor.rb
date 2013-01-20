@@ -57,9 +57,11 @@ module Xn
       request['AUTHORIZATION'] = token if token
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https' ) do |http|
         response = nil
+        http.read_timeout = 240
+        start_time = Time.now
         t = Thread.new { response = http.request(request) }
         i = 0
-        while response.nil?
+        while response.nil? and ( Time.now - start_time < http.read_timeout )
           i += 1
           print '.'
           if i % 20 == 0
