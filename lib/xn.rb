@@ -82,6 +82,7 @@ module Xn
         filter_string = "#{filter_string}?limit=1"
       end
       request_path = "/#{api_suffix}/model/#{model.downcase}/#{filter_string}"
+      debug "GET #{request_path}"
       api.get request_path do |response|
         vertex = response.first
         debug "found vertex [#{vertex}]"
