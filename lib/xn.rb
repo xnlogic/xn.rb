@@ -77,7 +77,7 @@ module Xn
       debug "find_vertex_by_model(#{model.downcase}, #{filter_string})"
       raise "model is a required argument" if model.nil?
       if filter_string and filter_string[/\?/]
-        filer_string = "#{filter_string}&limit=1"
+        filter_string = "#{filter_string}&limit=1"
       else
         filter_string = "#{filter_string}?limit=1"
       end

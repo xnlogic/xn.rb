@@ -15,7 +15,7 @@ module Xn
 
     # Request the resource(s) and a renderable JSON response
     def get(resource_url, &block)
-      call_http_server Net::HTTP::Get.new( resource_url ), &block
+      call_http_server Net::HTTP::Get.new( URI.encode(resource_url) ), &block
     end
 
     # Calls a method resource and returns a renderable JSON response
