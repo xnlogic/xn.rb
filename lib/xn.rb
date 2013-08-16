@@ -54,7 +54,7 @@ module Xn
         pass = console.read_password("Password: ")
         java.lang.String.new(pass)
       else
-        pass = ask("Password: "){ |q| q.echo = "*" }
+        pass = ask("Password: ") { |q| q.echo = "*" }
       end
     end
 
