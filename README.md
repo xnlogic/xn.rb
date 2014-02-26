@@ -3,6 +3,8 @@ xn.rb
 
 Ruby API client for XN Logic based applications.
 
+Source code available at https://github.com/xnlogic/xn.rb and Pull Requests are welcome!
+
 Synopsis
 --------
 
