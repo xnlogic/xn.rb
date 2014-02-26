@@ -166,7 +166,9 @@ module Xn
           debug "  parts: #{parts}"
           related = parts.map do |part|
             find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
-          end.compact
+          end.compact.reject do |response|
+            response[:status] == 404   # No need to tell us what doesn't exist!
+          end
           debug "found related: [#{related}]"
           return related if related.any?
         end
