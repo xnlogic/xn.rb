@@ -42,6 +42,13 @@ module Xn
       call_http_server http_patch, &block
     end
 
+    # Calls a method resource to delete a vertex and return a renderable JSON response
+    def delete(resource_url, body = nil, &block)
+      http_delete = Net::HTTP::Delete.new resource_url, {'Content-Type' =>'application/json'}
+      http_delete.body = json_body(body) if body
+      call_http_server http_delete, &block
+    end
+
     private
 
     # Ensure the body is json
