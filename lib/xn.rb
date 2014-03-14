@@ -131,7 +131,7 @@ module Xn
         vertex = find_vertex_by_part :record, vertex
       end
 
-      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/#{vertex['id']}"
+      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/id/#{vertex['id']}"
       debug "PATCH #{request_path} (#{update_hash.to_json})"
       api.patch request_path, update_hash do |response|
         debug "updated vertex [#{response}]"
@@ -161,11 +161,11 @@ module Xn
       debug "related_vertices(#{vertex})"
       if vertex and vertex.is_a? Hash and vertex['meta']['model_name']
         model = vertex['meta']['model_name']
-        request_path = "/#{api_suffix}/model/#{model}/#{vertex['id']}/rel"
+        request_path = "/#{api_suffix}/model/#{model}/id/#{vertex['id']}/rel"
         api.get request_path do |parts|
           debug "  parts: #{parts}"
           related = parts.map do |part|
-            find_vertex_by_model model, "#{vertex['id']}/rel/#{part}"
+            find_vertex_by_model model, "id/#{vertex['id']}/rel/#{part}"
           end.compact.reject do |response|
             response[:status] == 404   # No need to tell us what doesn't exist!
           end
@@ -178,7 +178,7 @@ module Xn
     # execute the named action with any properties as args
     def exec_action(vertex, action_name, props = {})
       debug "exec_action(#{vertex}, #{action_name}, #{props})"
-      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/#{vertex['id']}/action/#{action_name}"
+      request_path = "/#{api_suffix}/model/#{vertex['meta']['model_name']}/id/#{vertex['id']}/action/#{action_name}"
       debug "POST #{request_path} (#{props.to_json})"
       api.post request_path, props do |response|
         debug "executed #{action_name} on vertex [#{response}]"
